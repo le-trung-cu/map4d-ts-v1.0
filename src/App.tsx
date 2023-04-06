@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import map4d from './map4d'
 
 function App() {
   const [count, setCount] = useState(0)
-
+  useEffect(() => {
+    const marker = new map4d.Marker({position: [1, 1], label: 'sss'})
+    console.log(marker)
+  })
   return (
     <div className="App">
       <div>
