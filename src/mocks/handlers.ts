@@ -1,12 +1,34 @@
 // src/mocks/handlers.js
 import { rest } from 'msw'
 
+const dataLayers: Record<string, any> = {
+  '1': {
+    id: '1',
+    name: 'layer 1',
+    geometryProperties: [
+      {
+        id: '1',
+        dataLayerId: '1',
+        name: 'style 1',
+        strockeColor: 'red',
+        icon: '',
+        object3d: '',
+      }
+    ]
+  }
+}
+
 const mainObjects: Record<string, any[]> = {
   '1': [
     {
+      id: '1',
+      name: 'name 1',
+      dataLayerId: '1',
+      geometryPropertiesId: '1',
       'type': 'Feature',
       'properties': {},
       'geometry': {
+        'locations': [[1, 1]],
         'coordinates': [
           [
             [
@@ -35,6 +57,11 @@ const mainObjects: Record<string, any[]> = {
       }
     },
     {
+      id: '2',
+      name: 'name 2',
+      dataLayerId: '1',
+      geometryPropertiesId: '1',
+      locations: [[1, 1]],
       'type': 'Feature',
       'properties': {},
       'geometry': {
@@ -66,6 +93,10 @@ const mainObjects: Record<string, any[]> = {
       }
     },
     {
+      id: '3',
+      name: 'name 3',
+      dataLayerId: '1',
+      geometryPropertiesId: '1',
       'type': 'Feature',
       'properties': {},
       'geometry': {
@@ -97,6 +128,10 @@ const mainObjects: Record<string, any[]> = {
       }
     },
     {
+      id: '4',
+      name: 'name 4',
+      dataLayerId: '1',
+      geometryPropertiesId: '1',
       'type': 'Feature',
       'properties': {},
       'geometry': {
@@ -128,6 +163,10 @@ const mainObjects: Record<string, any[]> = {
       }
     },
     {
+      id: '5',
+      name: 'name 5',
+      dataLayerId: '1',
+      geometryPropertiesId: '1',
       'type': 'Feature',
       'properties': {},
       'geometry': {
@@ -159,6 +198,10 @@ const mainObjects: Record<string, any[]> = {
       }
     },
     {
+      id: '6',
+      name: 'name 6',
+      dataLayerId: '1',
+      geometryPropertiesId: '1',
       'type': 'Feature',
       'properties': {},
       'geometry': {
@@ -190,6 +233,10 @@ const mainObjects: Record<string, any[]> = {
       }
     },
     {
+      id: '7',
+      name: 'name 7',
+      dataLayerId: '1',
+      geometryPropertiesId: '1',
       'type': 'Feature',
       'properties': {},
       'geometry': {
@@ -220,130 +267,142 @@ const mainObjects: Record<string, any[]> = {
         'type': 'Polygon'
       }
     },
-    {
-      'type': 'Feature',
-      'properties': {},
-      'geometry': {
-        'coordinates': [
-          [
-            [
-              108.22293307648482,
-              16.07023178278037
-            ],
-            [
-              108.22293307648482,
-              16.068745532160307
-            ],
-            [
-              108.22377086403378,
-              16.068745532160307
-            ],
-            [
-              108.22377086403378,
-              16.07023178278037
-            ],
-            [
-              108.22293307648482,
-              16.07023178278037
-            ]
-          ]
-        ],
-        'type': 'Polygon'
-      }
-    },
-    {
-      'type': 'Feature',
-      'properties': {},
-      'geometry': {
-        'coordinates': [
-          [
-            [
-              108.22422198040539,
-              16.07018533761658
-            ],
-            [
-              108.22422198040539,
-              16.06982925766755
-            ],
-            [
-              108.22501143405663,
-              16.06982925766755
-            ],
-            [
-              108.22501143405663,
-              16.07018533761658
-            ],
-            [
-              108.22422198040539,
-              16.07018533761658
-            ]
-          ]
-        ],
-        'type': 'Polygon'
-      }
-    },
-    {
-      'type': 'Feature',
-      'properties': {},
-      'geometry': {
-        'coordinates': [
-          [
-            [
-              108.22407697871364,
-              16.06968992186175
-            ],
-            [
-              108.22407697871364,
-              16.069318359235652
-            ],
-            [
-              108.22489865496345,
-              16.069318359235652
-            ],
-            [
-              108.22489865496345,
-              16.06968992186175
-            ],
-            [
-              108.22407697871364,
-              16.06968992186175
-            ]
-          ]
-        ],
-        'type': 'Polygon'
-      }
-    },
-    {
-      'type': 'Feature',
-      'properties': {},
-      'geometry': {
-        'coordinates': [
-          [
-            [
-              108.22409309001296,
-              16.06920998667205
-            ],
-            [
-              108.22409309001296,
-              16.068730050325016
-            ],
-            [
-              108.22496310015896,
-              16.068730050325016
-            ],
-            [
-              108.22496310015896,
-              16.06920998667205
-            ],
-            [
-              108.22409309001296,
-              16.06920998667205
-            ]
-          ]
-        ],
-        'type': 'Polygon'
-      }
-    },
+    // {
+    //   id: '8',
+    //   name: 'name 8',
+    //   geometryPropertiesId: '1',
+    //   'type': 'Feature',
+    //   'properties': {},
+    //   'geometry': {
+    //     'coordinates': [
+    //       [
+    //         [
+    //           108.22293307648482,
+    //           16.07023178278037
+    //         ],
+    //         [
+    //           108.22293307648482,
+    //           16.068745532160307
+    //         ],
+    //         [
+    //           108.22377086403378,
+    //           16.068745532160307
+    //         ],
+    //         [
+    //           108.22377086403378,
+    //           16.07023178278037
+    //         ],
+    //         [
+    //           108.22293307648482,
+    //           16.07023178278037
+    //         ]
+    //       ]
+    //     ],
+    //     'type': 'Polygon'
+    //   }
+    // },
+    // {
+    //   id: '9',
+    //   name: 'name 9',
+    //   geometryPropertiesId: '1',
+    //   'type': 'Feature',
+    //   'properties': {},
+    //   'geometry': {
+    //     'coordinates': [
+    //       [
+    //         [
+    //           108.22422198040539,
+    //           16.07018533761658
+    //         ],
+    //         [
+    //           108.22422198040539,
+    //           16.06982925766755
+    //         ],
+    //         [
+    //           108.22501143405663,
+    //           16.06982925766755
+    //         ],
+    //         [
+    //           108.22501143405663,
+    //           16.07018533761658
+    //         ],
+    //         [
+    //           108.22422198040539,
+    //           16.07018533761658
+    //         ]
+    //       ]
+    //     ],
+    //     'type': 'Polygon'
+    //   }
+    // },
+    // {
+    //   id: '10',
+    //   name: 'name 10',
+    //   geometryPropertiesId: '1',
+    //   'type': 'Feature',
+    //   'properties': {},
+    //   'geometry': {
+    //     'coordinates': [
+    //       [
+    //         [
+    //           108.22407697871364,
+    //           16.06968992186175
+    //         ],
+    //         [
+    //           108.22407697871364,
+    //           16.069318359235652
+    //         ],
+    //         [
+    //           108.22489865496345,
+    //           16.069318359235652
+    //         ],
+    //         [
+    //           108.22489865496345,
+    //           16.06968992186175
+    //         ],
+    //         [
+    //           108.22407697871364,
+    //           16.06968992186175
+    //         ]
+    //       ]
+    //     ],
+    //     'type': 'Polygon'
+    //   }
+    // },
+    // {
+    //   id: '11',
+    //   name: 'name 11',
+    //   geometryPropertiesId: '1',
+    //   'type': 'Feature',
+    //   'properties': {},
+    //   'geometry': {
+    //     'coordinates': [
+    //       [
+    //         [
+    //           108.22409309001296,
+    //           16.06920998667205
+    //         ],
+    //         [
+    //           108.22409309001296,
+    //           16.068730050325016
+    //         ],
+    //         [
+    //           108.22496310015896,
+    //           16.068730050325016
+    //         ],
+    //         [
+    //           108.22496310015896,
+    //           16.06920998667205
+    //         ],
+    //         [
+    //           108.22409309001296,
+    //           16.06920998667205
+    //         ]
+    //       ]
+    //     ],
+    //     'type': 'Polygon'
+    //   }
+    // },
   ]
 }
 
@@ -365,11 +424,18 @@ export const handlers = [
     await new Promise((res, rej) => setTimeout(res, 1500))
     const id = req.params.id as string
     const page = parseInt(req.url.searchParams.get('page') as string)
-    const mainObjectsOfPage = mainObjects[id].slice((page - 1) * 3, (page - 1) * 3 + 3)
+    const mainObjectsOfPage = mainObjects[id].slice((page - 1) * 10, (page - 1) * 10 + 10)
     return res(ctx.json({
       layerId: id,
       page: page,
       mainObjects: mainObjectsOfPage,
     }))
+  }),
+
+  rest.get('/api/data-layers/:id/geometry-properties', async (req, res, ctx) => {
+    const id = req.params.id as string
+    return res(ctx.json(
+      dataLayers[id]
+    ))
   })
 ]

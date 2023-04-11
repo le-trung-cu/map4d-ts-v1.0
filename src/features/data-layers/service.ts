@@ -15,9 +15,8 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
       query: ({ id, page }) => id ? `/api/data-layers/${id}/main-objects?page=${page}` : '',
       transformResponse: async (response: { mainObjects: Array<any> }, meta, { id, page }) => {
         const worker = new TrasnformMainObjectWorker()
-        console.log('worker', worker)
-        worker.postMessage({ mainObjects: [], layerId: id, page })
-
+        worker.postMessage({ mainObjects: response.mainObjects, dataLayerId: id, page })
+        
         const result = await new Promise((resolve, reject) => {
           worker.onmessage = (e: { data: string }) => {
             console.log('onmessage getMainObjectsByDataLayerId', e)
@@ -25,8 +24,8 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
           }
 
           setTimeout(() => {
-            resolve('ABC')
-          }, 2000)
+            resolve('reject ABC')
+          }, 10000)
         })
         console.log('result', result)
         return 'result'

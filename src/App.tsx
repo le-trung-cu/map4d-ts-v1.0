@@ -157,7 +157,7 @@ function FetchDataLayerObjects({ dataLayerId }: { dataLayerId: string }) {
   useEffect(() => {
     const count = pageCount.data
     if (count) {
-      const pageNum = Math.ceil(count / 3)
+      const pageNum = Math.ceil(count / 10)
       const pages = new Array<number>()
       for (let i = 1; i <= pageNum; i++) {
         pages.push(i)
