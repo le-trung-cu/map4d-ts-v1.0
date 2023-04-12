@@ -15,7 +15,7 @@ export class DbContext extends Dexie {
     super('DbContext')
     this.version(2).stores({
       mainObjects: 'id, [dataLayerId+page]',
-      geometryProperties: 'id',
+      geometryProperties: '[dataLayerId+id]',
       rbush: '[dataLayerId+page]'
     })
   }

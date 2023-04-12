@@ -29,9 +29,9 @@ const mainObjects: Record<string, any[]> = {
           // current
           startDate: null,
           endDate: null,
+          geometryPropertyId: '1',
           geometry: {
             locations: [[1, 1]],
-            geometryPropertiesId: '1',
             'type': 'Polygon',
             coordinates: [
               [
@@ -66,11 +66,11 @@ const mainObjects: Record<string, any[]> = {
       name: 'name 2',
       dataLayerId: '1',
       locations: [[1, 1]],
-      timeline: [
+      geometryPropertyId: '1',
+      timelines: [
         {
           startDate: null,
           endDate: null,
-          geometryPropertiesId: '1',
           geometry: {
             type: 'Polygon',
             coordinates: [
@@ -105,11 +105,11 @@ const mainObjects: Record<string, any[]> = {
       id: '3',
       name: 'name 3',
       dataLayerId: '1',
+      geometryPropertyId: '1',
       timelines: [
         {
           startDate: null,
           endDate: null,
-          geometryPropertiesId: '1',
           geometry: {
             coordinates: [
               [
@@ -144,11 +144,11 @@ const mainObjects: Record<string, any[]> = {
       id: '4',
       name: 'name 4',
       dataLayerId: '1',
+      geometryPropertyId: '1',
       timelines: [
         {
           startDate: null,
           endDate: null,
-          geometryPropertiesId: '1',
           geometry: {
             coordinates: [
               [
@@ -183,11 +183,11 @@ const mainObjects: Record<string, any[]> = {
       id: '5',
       name: 'name 5',
       dataLayerId: '1',
+      geometryPropertyId: '1',
       timelines: [
         {
           startDate: null,
           endDate: null,
-          geometryPropertiesId: '1',
           geometry: {
             coordinates: [
               [
@@ -222,11 +222,11 @@ const mainObjects: Record<string, any[]> = {
       id: '6',
       name: 'name 6',
       dataLayerId: '1',
+      geometryPropertyId: '1',
       timelines: [
         {
           startDate: null,
           endDate: null,
-          geometryPropertiesId: '1',
           geometry: {
             coordinates: [
               [
@@ -261,11 +261,11 @@ const mainObjects: Record<string, any[]> = {
       id: '7',
       name: 'name 7',
       dataLayerId: '1',
+      geometryPropertyId: '1',
       timelines: [
         {
           startDate: null,
           endDate: null,
-          geometryPropertiesId: '1',
           'geometry': {
             'coordinates': [
               [

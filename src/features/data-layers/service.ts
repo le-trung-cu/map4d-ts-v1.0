@@ -2,6 +2,7 @@ import { response } from 'msw'
 import { emptySplitApi } from '../../app/emptySplitApi'
 import TrasnformMainObjectWorker from './workers/transformMainObjectWorker?worker'
 import { db } from '../../database'
+import Dexie from 'dexie'
 
 const dataLayerApi = emptySplitApi.injectEndpoints({
   overrideExisting: true,
@@ -41,7 +42,27 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
     getMainObjects: build.query<string, string>({
       query: id => id ? `/api/data-layers/${id}/main-objects/count` : '',
       transformResponse: async (response: { count: number }, meta, id) => {
-        await db.mainObjects.where({ dataLayerId: id }).delete()
+        await db.geometryProperties
+          .where('[dataLayerId+id]')
+          .between([id, Dexie.minKey], [id, Dexie.maxKey])
+          .delete()
+
+        await db.mainObjects
+          .where({ dataLayerId: id })
+          .delete()
+
+        const geometryProperties = await fetch(`/api/data-layers/${id}/geometry-properties`)
+          .then(value => value.json())
+          .then(value => {
+            // db.geometryProperties.bulkAdd(value.geometryProperties)
+            return value.geometryProperties.reduce((result: any, item: any) => {
+              result[item.id] = item
+              return result 
+            }, {})
+          })
+
+        console.log(geometryProperties)
+
         const numPages = Math.ceil(response.count / 3)
         for (let page = 1; page <= numPages; page++) {
           fetch(`/api/data-layers/${id}/main-objects?page=${page}`)
@@ -50,6 +71,9 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
               for (const mainObject of mainObjects) {
                 mainObject.page = page
                 mainObject.dataLayerId = id
+                for (const timeline of mainObject.timelines) {
+                  timeline.geometry.properties =  geometryProperties[timeline.geometryPropertyId]
+                }
               }
               db.mainObjects.bulkAdd(mainObjects)
             })

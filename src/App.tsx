@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import {  useGetMainObjectPageCountQuery, useGetMainObjectsByDataLayerIdQuery, useGetMainObjectsQuery } from './features/data-layers/service'
+import { useGetMainObjectPageCountQuery, useGetMainObjectsByDataLayerIdQuery, useGetMainObjectsQuery } from './features/data-layers/service'
 import drawMap from './drawMap'
+import Mapclient from './features/mapclient/mapclient'
 
 
 
@@ -28,21 +29,24 @@ function App() {
 
   return (
     <div className="App">
-      {dataLayers.map(item => (
-        <div key={item.id}>
-          <label><input type="checkbox" value={item.id} onChange={(e) => {
-            const indexOf = selectedIds.indexOf(item.id)
-            if (indexOf === -1) {
-              setSelectedIds(state => state.concat(item.id))
-            } else {
-              setSelectedIds(state => state.filter(id => id !== item.id))
-            }
-          }} /> {item.name}</label>
+      <div className="fixed top-0 left-0 z-10 bg-white p-5">
+        {dataLayers.map(item => (
+          <div key={item.id}>
+            <label><input type="checkbox" value={item.id} onChange={(e) => {
+              const indexOf = selectedIds.indexOf(item.id)
+              if (indexOf === -1) {
+                setSelectedIds(state => state.concat(item.id))
+              } else {
+                setSelectedIds(state => state.filter(id => id !== item.id))
+              }
+            }} /> {item.name}</label>
+          </div>
+        ))}
+        <div>
+          {selectedIds.map(id => <FetchDataLayerObjects key={id} dataLayerId={id} />)}
         </div>
-      ))}
-      <div>
-        {selectedIds.map(id => <FetchDataLayerObjects key={id} dataLayerId={id} />)}
       </div>
+      <Mapclient />
     </div>
   )
 }
