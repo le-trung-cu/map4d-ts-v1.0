@@ -7,13 +7,15 @@ export interface IMainObject {
 
 export class DbContext extends Dexie {
   mainObjects!: Table<IMainObject>
+  geometryProperties!: Table
   rbush!: Table
   
 
   constructor() {
     super('DbContext')
     this.version(2).stores({
-      mainObjects: '[dataLayerId+id], [dataLayerId+page]',
+      mainObjects: 'id, [dataLayerId+page]',
+      geometryProperties: 'id',
       rbush: '[dataLayerId+page]'
     })
   }

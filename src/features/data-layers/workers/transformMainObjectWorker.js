@@ -15,27 +15,9 @@ onmessage = async function (e) {
     .delete()
 
   for (const mainObject of mainObjects) {
-    mainObject.bbox = turf.bbox(mainObject.geometry)
     mainObject.page = page
     mainObject.dataLayerId = dataLayerId
   }
-
-  const treeItems = mainObjects.map(mainObject => ({
-    minX: mainObject.bbox[0],
-    minY: mainObject.bbox[1],
-    maxX: mainObject.bbox[2],
-    maxY: mainObject.bbox[3],
-    value: {
-      mainObjectId: mainObject.id,
-    }
-  }))
-
-  const treeData = tree.load(treeItems)
-  const x = mainObjects[0].bbox
-  const collides = tree.collides({minX: x[0], minY: x[1], maxX: x[2], maxY: x[3]})
-  console.log('collides ', collides);
-
-  await db.rbush.add({dataLayerId, page, treeData})
 
   await db.mainObjects.bulkAdd(mainObjects)
   postMessage('ZYX')

@@ -25,8 +25,8 @@ declare module 'typeing-map4d' {
 
   class Circle {
     constructor(options: CircleOptions)
-    getMap(): Map
-    setMap(map: Map): void
+    getMap(): Map4d
+    setMap(map: Map4d): void
     setCenter(center: ILatLng): void
     setRadius(radius: number): void
     setFillColor(fillColor: string)
@@ -319,7 +319,7 @@ declare module 'typeing-map4d' {
   }
 
 
-  class Map {
+  class Map4d {
     constructor(container: HTMLElement, options?: MapOptions)
 
     data: MapData
@@ -433,7 +433,7 @@ declare module 'typeing-map4d' {
 
   class Marker {
     constructor(options: MarkerOptions)
-    setMap(map: Map)
+    setMap(map: Map4d)
     setPosition(position: ILatLng)
     setVisible(visible: boolean)
     setAnchor(anchor: IPoint)
@@ -450,7 +450,7 @@ declare module 'typeing-map4d' {
     getIcon(): Icon | string
     getElevation(): number
     getRotation(): number
-    getMap(): Map
+    getMap(): Map4d
     hideInfoWindow(): void
     showInfoWindow(): void
     getTitle(): string
@@ -510,8 +510,8 @@ declare module 'typeing-map4d' {
 
   class Polygon {
     constructor(options: PolygonOptions)
-    getMap(): Map
-    setMap(map: Map): void
+    getMap(): Map4d
+    setMap(map: Map4d): void
     setPaths(paths: ILatLng[][]): void
     setFillColor(fillColor: string): void
     setFillOpacity(fillOpacity: number): void
@@ -556,8 +556,8 @@ declare module 'typeing-map4d' {
   class Polyline {
     constructor(options: PolylineOptions)
     getPath(): LatLng[]
-    getMap(): Map
-    setMap(map: Map): void
+    getMap(): Map4d
+    setMap(map: Map4d): void
     setPath(path: ILatLng[]): void
     setStrokeWidth(strokeWidth: number): void
     setClosed(closed: boolean): void
@@ -584,7 +584,7 @@ declare module 'typeing-map4d' {
   }
 
   class Projection {
-    constructor(map: Map)
+    constructor(map: Map4d)
     fromLatLngToScreen(latLng: LatLng, elevation?: number): Point
     fromScreenToLatLng(screenCoordinate: IPoint, elevation?: number): LatLng
   }
@@ -599,7 +599,7 @@ declare module 'typeing-map4d' {
   class MarkerClusterer {
     constructor(markers: Marker[], options?: MarkerClusterOptions)
     setZoomOnClick(zoomOnClick: boolean): void
-    setMap(map: Map): void
+    setMap(map: Map4d): void
   }
 
   interface POIOptions {
@@ -618,8 +618,8 @@ declare module 'typeing-map4d' {
 
   class POI {
     constructor(options: POIOptions)
-    setMap(map: Map): void
-    getMap(): Map
+    setMap(map: Map4d): void
+    getMap(): Map4d
     getTitle(): string
     setTitle(value: string): void
     getPosition(): LatLng
@@ -666,8 +666,8 @@ declare module 'typeing-map4d' {
 
   class Building {
     constructor(options: BuildingOptions)
-    setMap(map: Map): void
-    getMap(): Map
+    setMap(map: Map4d): void
+    getMap(): Map4d
     getPosition(): LatLng
     setPosition(position: ILatLng): void
     getName(): string
@@ -709,7 +709,7 @@ declare module 'typeing-map4d' {
 
   class TileOverlay {
     constructor(options?: TileOverlayOptions)
-    setMap(map: Map): void
+    setMap(map: Map4d): void
     setVisible(visibility: boolean): void
     isVisible(): boolean
     setZIndex(zIndex: number): void
@@ -726,7 +726,7 @@ declare module 'typeing-map4d' {
 
   class GroundOverlay {
     constructor(options: GroundOverlayOptions)
-    setMap(map: Map): void
+    setMap(map: Map4d): void
     setVisible(visibility: boolean): void
     isVisible(): boolean
     setZIndex(zIndex: number): void
@@ -752,7 +752,7 @@ declare module 'typeing-map4d' {
 
   class POIOverlay {
     constructor(options: POIOverlayOptions)
-    setMap(map: Map): void
+    setMap(map: Map4d): void
     setVisible(visibility: boolean): void
     isVisible(): boolean
     getPrefixId(): string
@@ -782,7 +782,7 @@ declare module 'typeing-map4d' {
 
   class BuildingOverlay {
     constructor(options?: BuildingOverlayOptions)
-    setMap(map: Map): void
+    setMap(map: Map4d): void
     setVisible(visibility: boolean): void
     isVisible(): boolean
     getPrefixId(): string
