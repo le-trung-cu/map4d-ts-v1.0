@@ -1,10 +1,31 @@
 // src/mocks/handlers.js
 import { rest } from 'msw'
 
-const dataLayers: Record<string, any> = {
+const dataLayers: Record<string, {
+  id: string,
+  name: string,
+  type: string,
+  geometryProperties: any[],
+}> = {
   '1': {
     id: '1',
     name: 'layer 1',
+    type: 'Polygon',
+    geometryProperties: [
+      {
+        id: '1',
+        dataLayerId: '1',
+        name: 'style 1',
+        strockeColor: 'red',
+        icon: '',
+        object3d: '',
+      }
+    ]
+  },
+  '2': {
+    id: '1',
+    name: 'layer 1',
+    type: 'Point',
     geometryProperties: [
       {
         id: '1',
@@ -296,7 +317,131 @@ const mainObjects: Record<string, any[]> = {
         }
       ]
     },
-  ]
+    {
+      id: '8',
+      name: 'name 8',
+      dataLayerId: '1',
+      geometryPropertyId: '1',
+      timelines: [
+        {
+          startDate: null,
+          endDate: null,
+          'geometry': {
+            'coordinates': [
+              [
+                [
+                  [
+                    108.2235508056753,
+                    16.071965848209146
+                  ],
+                  [
+                    108.2235508056753,
+                    16.071271650816655
+                  ],
+                  [
+                    108.22515621158561,
+                    16.071271650816655
+                  ],
+                  [
+                    108.22515621158561,
+                    16.071965848209146
+                  ],
+                  [
+                    108.2235508056753,
+                    16.071965848209146
+                  ]
+                ]
+              ],
+              [
+                [
+                  [
+                    108.2221518090974,
+                    16.071938300740015
+                  ],
+                  [
+                    108.2221518090974,
+                    16.071150441499242
+                  ],
+                  [
+                    108.2232297244941,
+                    16.071150441499242
+                  ],
+                  [
+                    108.2232297244941,
+                    16.071938300740015
+                  ],
+                  [
+                    108.2221518090974,
+                    16.071938300740015
+                  ]
+                ]
+              ]
+            ],
+            'type': 'MultiPolygon'
+          }
+        }
+      ]
+    },
+  ],
+  '2': [
+    {
+      id: 'p1',
+      name: 'name p1',
+      dataLayerId: '2',
+      geometryPropertyId: '1',
+      timelines: [
+        {
+          startDate: null,
+          endDate: null,
+          'geometry': {
+            'coordinates': [
+              108.22365508858195,
+              16.071835112028907
+            ],
+            'type': 'Point'
+          }
+        }
+      ]
+    },
+    {
+      id: 'p2',
+      name: 'name p2',
+      dataLayerId: '2',
+      geometryPropertyId: '1',
+      timelines: [
+        {
+          startDate: null,
+          endDate: null,
+          'geometry': {
+            'coordinates': [
+              108.22367690823143,
+              16.071835097698084
+            ],
+            'type': 'Point'
+          }
+        }
+      ]
+    },
+    {
+      id: 'p1',
+      name: 'name p1',
+      dataLayerId: '2',
+      geometryPropertyId: '1',
+      timelines: [
+        {
+          startDate: null,
+          endDate: null,
+          'geometry': {
+            'coordinates': [
+              108.22387923417585,
+              16.07185102132955
+            ],
+            'type': 'Point'
+          }
+        }
+      ]
+    },
+  ],
 }
 
 export const handlers = [
@@ -314,12 +459,13 @@ export const handlers = [
   }),
 
   rest.get('/api/data-layers/:id/main-objects', async (req, res, ctx) => {
-    await new Promise((res, rej) => setTimeout(res, 1500))
+    await new Promise((res, rej) => setTimeout(res, Math.random() * 5000))
     const id = req.params.id as string
     const page = parseInt(req.url.searchParams.get('page') as string)
     const mainObjectsOfPage = mainObjects[id].slice((page - 1) * 3, (page - 1) * 3 + 3)
     return res(ctx.json({
       layerId: id,
+      type: dataLayers[id].type,
       page: page,
       mainObjects: mainObjectsOfPage,
     }))

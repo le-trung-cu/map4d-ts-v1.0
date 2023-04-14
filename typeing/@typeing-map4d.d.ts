@@ -433,7 +433,7 @@ declare module 'typeing-map4d' {
 
   class Marker {
     constructor(options: MarkerOptions)
-    setMap(map: Map4d)
+    setMap(map: Map4d | null)
     setPosition(position: ILatLng)
     setVisible(visible: boolean)
     setAnchor(anchor: IPoint)
@@ -511,7 +511,7 @@ declare module 'typeing-map4d' {
   class Polygon {
     constructor(options: PolygonOptions)
     getMap(): Map4d
-    setMap(map: Map4d): void
+    setMap(map: Map4d | null): void
     setPaths(paths: ILatLng[][]): void
     setFillColor(fillColor: string): void
     setFillOpacity(fillOpacity: number): void
@@ -557,7 +557,7 @@ declare module 'typeing-map4d' {
     constructor(options: PolylineOptions)
     getPath(): LatLng[]
     getMap(): Map4d
-    setMap(map: Map4d): void
+    setMap(map: Map4d | null): void
     setPath(path: ILatLng[]): void
     setStrokeWidth(strokeWidth: number): void
     setClosed(closed: boolean): void

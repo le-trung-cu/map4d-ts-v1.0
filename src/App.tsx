@@ -1,12 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import { useGetMainObjectPageCountQuery, useGetMainObjectsByDataLayerIdQuery, useGetMainObjectsQuery } from './features/data-layers/service'
-import drawMap from './drawMap'
+import { useGetMainObjectsQuery } from './features/data-layers/service'
+import drawMap from './core/drawMap'
 import Mapclient from './features/mapclient/mapclient'
-
-
+import indexedMainObject from './core/createIndexMainObject'
 
 function App() {
+  const vitualDrawn = useRef({
+    selectedObjects: { selectedMainObjects: new Map<string, any>() },
+    dataLayers: {},
+  })
+
+  const drawnObjects = useRef({
+    selectedObjects: { selectedMainObjects: new Map<string, any>() },
+    dataLayers: {},
+  })
+  
+  drawMap.setContext(vitualDrawn.current, drawnObjects.current)
+
   const dataLayers = [
     {
       name: 'layer 1',
@@ -53,38 +64,29 @@ function App() {
 
 
 function FetchDataLayerObjects({ dataLayerId }: { dataLayerId: string }) {
-  const [pages, setPages] = useState(new Array<number>())
+  const controller = useRef(new AbortController)
   const getMainObjectsQuery = useGetMainObjectsQuery(dataLayerId)
-
   useEffect(() => {
-    drawMap.createDataLayer(dataLayerId)
-    return () => drawMap.deleteMainObjects(dataLayerId)
+    drawMap.createDataLayer(dataLayerId, 'Polygon')
+    return () => {
+      controller.current.abort()
+      drawMap.deleteMainObjects(dataLayerId)
+    }
   }, [])
 
-  // useEffect(() => {
-  //   const count = pageCount.data
-  //   if (count) {
-  //     const pageNum = Math.ceil(count / 10)
-  //     const pages = new Array<number>()
-  //     for (let i = 1; i <= pageNum; i++) {
-  //       pages.push(i)
-  //     }
-  //     setPages(pages)
-  //   }
-  // }, [pageCount.data, setPages])
-
-  return <>
-    {/* { && pages.map(page => <FetchDataLayerObjectsPerPage key={page} dataLayerId={dataLayerId} page={page} />)} */}
-  </>
-}
-
-function FetchDataLayerObjectsPerPage({ dataLayerId, page }: { dataLayerId: string, page: number }) {
-  const mainObjects = useGetMainObjectsByDataLayerIdQuery({ id: dataLayerId, page })
-
   useEffect(() => {
-    drawMap.pushMainObjects(dataLayerId, page, mainObjects.data)
-  }, [mainObjects.data])
+    let _dataLayerId = ''
+    if (getMainObjectsQuery.isSuccess) {
+      for (const { dataLayerId, page, geoJson } of getMainObjectsQuery.data) {
+        _dataLayerId = dataLayerId
+        drawMap.pushMainObjects(dataLayerId, page, geoJson)
+      }
+      if(_dataLayerId !== '')
+        indexedMainObject.createIndexDataLayer(_dataLayerId)
+    }
+  }, [getMainObjectsQuery])
 
-  return null
+  return <> </>
 }
+
 export default App

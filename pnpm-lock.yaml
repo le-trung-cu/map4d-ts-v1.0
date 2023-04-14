@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@reduxjs/toolkit': ^1.9.3
   '@turf/turf': ^6.5.0
+  '@types/rbush': ^3.0.0
   '@types/react': ^18.0.28
   '@types/react-dom': ^18.0.11
   '@typescript-eslint/eslint-plugin': ^5.57.1
@@ -32,6 +33,7 @@ dependencies:
   react-redux: 8.0.5_ddal5w4bzhvnvvplv3twufcima
 
 devDependencies:
+  '@types/rbush': 3.0.0
   '@types/react': 18.0.33
   '@types/react-dom': 18.0.11
   '@typescript-eslint/eslint-plugin': 5.57.1_iify4w3mi7rbbu6mxzspkpx4b4
@@ -1713,6 +1715,10 @@ packages:
 
   /@types/prop-types/15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
+
+  /@types/rbush/3.0.0:
+    resolution: {integrity: sha512-W3ue/GYWXBOpkRm0VSoifrP3HV0Ni47aVJWvXyWMcbtpBy/l/K/smBRiJ+fI8f7shXRjZBiux+iJzYbh7VmcZg==}
+    dev: true
 
   /@types/react-dom/18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}

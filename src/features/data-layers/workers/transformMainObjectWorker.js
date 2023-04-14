@@ -1,5 +1,5 @@
 import Dexie from 'dexie'
-import { db } from '../../../database'
+import { db } from '@/database'
 import RBush from 'rbush'
 import * as turf from '@turf/turf'
 
@@ -11,7 +11,7 @@ onmessage = async function (e) {
   const { mainObjects, dataLayerId, page } = e.data
 
   await db.mainObjects
-    .where({dataLayerId, page})
+    .where({ dataLayerId, page })
     .delete()
 
   for (const mainObject of mainObjects) {
