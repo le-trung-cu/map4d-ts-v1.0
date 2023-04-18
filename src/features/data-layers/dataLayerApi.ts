@@ -1,39 +1,36 @@
 import { emptySplitApi } from '@/app/emptySplitApi'
 import TrasnformMainObjectWorker from './workers/transformMainObjectWorker?worker'
-import { db } from '@/database'
+import { IDataLayer, db } from '@/database'
 import Dexie from 'dexie'
 import drawMap from '@/core/drawMap'
+import { GeometryTypes } from '@/core/types'
 
-const dataLayerApi = emptySplitApi.injectEndpoints({
+
+export const dataLayerApi = emptySplitApi.injectEndpoints({
   overrideExisting: true,
   endpoints: build => ({
+    getDataLayers: build.query<{ ids: Array<IDataLayer['id']>, items: Record<IDataLayer['id'], IDataLayer> }, void>({
+      query: () => '/api/data-layers',
+      transformResponse: async (response: IDataLayer[], meta, id) => {
+        await db.dataLayers.clear()
+        await db.dataLayers.bulkAdd(response)
+        const items = response.reduce((result: Record<IDataLayer['id'], IDataLayer>, item) => {
+          result[item.id] = item
+          return result
+        }, {})
+        return {
+          ids: Object.keys(items),
+          items,
+        }
+      }
+    }),
     getMainObjectPageCount: build.query<number, string>({
       query: id => id ? `/api/data-layers/${id}/main-objects/count` : '',
       transformResponse: (response: { count: number }) => {
         return response.count
       }
     }),
-    getMainObjectsByDataLayerId: build.query<string, { id: string, page: number, signal: any }>({
-      query: ({ id, page }) => id ? `/api/data-layers/${id}/main-objects?page=${page}` : '',
-      transformResponse: async (response: { mainObjects: Array<any> }, meta, { id, page, signal }) => {
-        const worker = new TrasnformMainObjectWorker()
-        worker.postMessage({ mainObjects: response.mainObjects, dataLayerId: id, page })
-
-        const result = await new Promise((resolve, reject) => {
-          worker.onmessage = (e: { data: string }) => {
-            console.log('onmessage getMainObjectsByDataLayerId', e)
-            resolve(e.data)
-          }
-
-          setTimeout(() => {
-            resolve('reject ABC')
-          }, 10000)
-        })
-        console.log('result', result)
-        return 'result'
-      }
-    }),
-    getMainObjects: build.query<{ dataLayerId: string, page: number, geoJson: any }[], string>({
+    getMainObjects: build.query<{ dataLayerId: string, page: number, type: GeometryTypes, geoJson?: any }[], string>({
       keepUnusedDataFor: 5,
       query: id => id ? `/api/data-layers/${id}/main-objects/count` : '',
       transformResponse: async (response: { count: number }, meta, id) => {
@@ -56,23 +53,21 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
             }, {})
           })
 
-        console.log(geometryProperties)
-
-        const numPages = Math.ceil(response.count / 3)
+        const numPages = Math.ceil(response.count / 30)
         const requests: any = []
         for (let page = 1; page <= numPages; page++) {
-          const task = fetch(`/api/data-layers/${id}/main-objects?page=${page}`)
+          const task = fetch(`/api/data-layers/${id}/main-objects?page=${page}&page-size=30`)
             .then(value => value.json())
             .then(({ type, mainObjects }) => {
-              if (type === 'Polygon') {
-                for (const mainObject of mainObjects) {
-                  mainObject.page = page
-                  mainObject.dataLayerId = id
-                  for (const timeline of mainObject.timelines) {
-                    timeline.geometry.properties = geometryProperties[timeline.geometryPropertyId]
-                  }
+              for (const mainObject of mainObjects) {
+                mainObject.page = page
+                mainObject.dataLayerId = id
+                for (const timeline of mainObject.timelines) {
+                  timeline.geometry.properties = geometryProperties[timeline.geometryPropertyId]
                 }
+              }
 
+              if (type === 'Polygon') {
                 const features = mainObjects.map((t: any) => {
                   return {
                     'type': 'Feature',
@@ -101,7 +96,7 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
                   'features': features,
                 }
 
-                drawMap.pushMainObjects(id, page, geoJson)
+                drawMap.pushMainObjects(id, page, { type, geoJson })
                 db.mainObjects.bulkAdd(mainObjects)
 
                 return {
@@ -112,8 +107,15 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
                 }
               }
 
-              if(type === 'Point') {
-                //
+              if (type === 'Point') {
+                drawMap.pushMainObjects(id, page, { type })
+                db.mainObjects.bulkAdd(mainObjects)
+
+                return {
+                  dataLayerId: id,
+                  type,
+                  page,
+                }
               }
             })
 
@@ -127,9 +129,11 @@ const dataLayerApi = emptySplitApi.injectEndpoints({
 })
 
 export const {
+  useGetDataLayersQuery,
   useGetMainObjectPageCountQuery,
-  useGetMainObjectsByDataLayerIdQuery,
   useGetMainObjectsQuery,
   useLazyGetMainObjectsQuery
   // useGetGeometryPropertiesByLayerIdQuery,
 } = dataLayerApi
+
+

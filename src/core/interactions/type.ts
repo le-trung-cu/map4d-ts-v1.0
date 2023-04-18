@@ -19,4 +19,5 @@ export interface IDrawContext {
   eventDragEndPoint?: MapsEventListener,
   indexDragPoint?: number,
   flagBeginDraw: boolean, // một cờ để xác định hành vi event dbclick trên màng hình cảm ứng
+  isDrawing: boolean,
 } 

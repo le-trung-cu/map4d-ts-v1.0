@@ -1,3 +1,4 @@
+import { GeometryTypes } from '@/core/types'
 import Dexie, { Table } from 'dexie'
 
 export interface IMainObject {
@@ -7,13 +8,21 @@ export interface IMainObject {
     startDate: Date | null,
     endDate: Date | null,
     geometry: {
-      coordinates: [],
+      coordinates: Array<any>,
       properties: object,
     },
   }>,
 }
 
+export interface IDataLayer {
+  id: string,
+  parentId: string | null,
+  name: string,
+  type: GeometryTypes,
+}
+
 export class DbContext extends Dexie {
+  dataLayers!: Table<IDataLayer>
   mainObjects!: Table<IMainObject>
   geometryProperties!: Table
   rbush!: Table
@@ -22,6 +31,7 @@ export class DbContext extends Dexie {
   constructor() {
     super('DbContext')
     this.version(2).stores({
+      dataLayers: 'id',
       mainObjects: 'id, dataLayerId',
       geometryProperties: '[dataLayerId+id]',
       rbush: '[dataLayerId+page]'

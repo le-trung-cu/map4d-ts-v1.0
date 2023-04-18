@@ -6,7 +6,7 @@ import './index.css'
 import { Provider } from 'react-redux'
 import { store } from './app/store'
 if (import.meta.env.DEV) {
-  import('./mocks/browser').then(({worker}) => worker.start({
+  await import('./mocks/browser').then(({worker}) => worker.start({
     onUnhandledRequest: 'bypass',
   }))
 }

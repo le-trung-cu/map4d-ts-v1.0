@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@reduxjs/toolkit': ^1.9.3
   '@turf/turf': ^6.5.0
+  '@types/kdbush': ^3.0.2
   '@types/rbush': ^3.0.0
   '@types/react': ^18.0.28
   '@types/react-dom': ^18.0.11
@@ -13,8 +14,11 @@ specifiers:
   dexie: ^3.2.3
   eslint: ^8.37.0
   eslint-plugin-react: ^7.32.2
+  kdbush: ^3.0.0
+  mitt: ^3.0.0
   msw: ^1.2.1
   postcss: ^8.4.21
+  quadtree-lib: ^1.0.9
   rbush: ^3.0.1
   react: ^18.2.0
   react-dom: ^18.2.0
@@ -27,12 +31,16 @@ dependencies:
   '@reduxjs/toolkit': 1.9.3_k4ae6lp43ej6mezo3ztvx6pykq
   '@turf/turf': 6.5.0
   dexie: 3.2.3
+  kdbush: 3.0.0
+  mitt: 3.0.0
+  quadtree-lib: 1.0.9
   rbush: 3.0.1
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-redux: 8.0.5_ddal5w4bzhvnvvplv3twufcima
 
 devDependencies:
+  '@types/kdbush': 3.0.2
   '@types/rbush': 3.0.0
   '@types/react': 18.0.33
   '@types/react-dom': 18.0.11
@@ -1705,6 +1713,10 @@ packages:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
     dev: true
 
+  /@types/kdbush/3.0.2:
+    resolution: {integrity: sha512-0O5q0eB0Af/2fbQjoxKSrUe5BchtmHeyqAvxP5a3gYBVibbibGztITP3pTla1ZVbF2EUien25hKCFSHMuSz6nA==}
+    dev: true
+
   /@types/ms/0.7.31:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
@@ -3184,6 +3196,10 @@ packages:
       object.assign: 4.1.4
     dev: true
 
+  /kdbush/3.0.0:
+    resolution: {integrity: sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==}
+    dev: false
+
   /levn/0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
@@ -3273,6 +3289,10 @@ packages:
     dependencies:
       brace-expansion: 1.1.11
     dev: true
+
+  /mitt/3.0.0:
+    resolution: {integrity: sha512-7dX2/10ITVyqh4aOSVI9gdape+t9l2/8QxHrFmUXu4EEUpdlxl6RudZUPZoc+zuY2hk1j7XxVroIVIan/pD/SQ==}
+    dev: false
 
   /ms/2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
@@ -3649,6 +3669,10 @@ packages:
     resolution: {integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==}
     engines: {node: '>=6'}
     dev: true
+
+  /quadtree-lib/1.0.9:
+    resolution: {integrity: sha512-2hFsbM1+gqVkNafxAEjv/XD9VO7s4urGkV/Wdo36YoQQ7q4i6IgcAcVcmbWLOtVcIj7XYQmUl1QUOBr59FDbsA==}
+    dev: false
 
   /queue-microtask/1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}

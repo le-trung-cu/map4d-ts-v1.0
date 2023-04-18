@@ -24,6 +24,7 @@ export default class DrawPolygon {
       circles: [],
       isDraggingCircle: false,
       flagBeginDraw: false,
+      isDrawing: false,
     }
     this.savedObjects = []
   }
@@ -50,6 +51,7 @@ export default class DrawPolygon {
         return
       }
       if (this.drawContext.points.length === 0 && !this.drawContext.flagBeginDraw) {
+        this.drawContext.circles.forEach(t => t.setDraggable(false))
         this.onStart?.()
       }
       this.drawPolylineByMouseMove(e)
@@ -115,7 +117,9 @@ export default class DrawPolygon {
       (saved.polygon as any).circles = this.drawContext.circles
       this.drawContext.circles.forEach((p: any) => p.polygon = saved.polygon)
       this.savedObjects.push(saved)
+      this.drawContext.isDrawing = false
       this.onCompleted?.(saved.polygon)
+      this.drawContext.circles.forEach(t => t.setDraggable(this.options.modified))
       this.resetDataForDrawing()
 
       if (e.xa instanceof Touch) {
@@ -155,7 +159,6 @@ export default class DrawPolygon {
 
     // kết thúc quá trình drag point
     this.drawContext.eventDragEndPoint ??= map.addListener('dragEnd', (e: any) => {
-      const { marker } = e
       this.drawContext.indexDragPoint = undefined
     }, { marker: true })
   }
@@ -211,7 +214,7 @@ export default class DrawPolygon {
       position,
       icon: new map4dx.Icon(8, 8, '/EllipseBlue.svg'),
       anchor: [0.5, 0.5],
-      draggable: this.options.modified,
+      draggable: false,
       zIndex: this.getZIndexOfPolygon() + 1,
     })
     markerDraw.setMap(this.mapview)
