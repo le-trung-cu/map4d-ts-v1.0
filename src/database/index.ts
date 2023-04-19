@@ -1,4 +1,4 @@
-import { GeometryTypes } from '@/core/types'
+import { DrawTypes, GeometryTypes } from '@/core/types'
 import Dexie, { Table } from 'dexie'
 
 export interface IMainObject {
@@ -19,6 +19,7 @@ export interface IDataLayer {
   parentId: string | null,
   name: string,
   type: GeometryTypes,
+  drawType: DrawTypes,
 }
 
 export class DbContext extends Dexie {
@@ -26,17 +27,20 @@ export class DbContext extends Dexie {
   mainObjects!: Table<IMainObject>
   geometryProperties!: Table
   rbush!: Table
-  
+
 
   constructor() {
     super('DbContext')
     this.version(2).stores({
       dataLayers: 'id',
-      mainObjects: 'id, dataLayerId',
+      mainObjects: 'id, dataLayerId, [dataLayerId+page]',
       geometryProperties: '[dataLayerId+id]',
       rbush: '[dataLayerId+page]'
     })
   }
 }
 
-export const db = new DbContext()
+const _db = new DbContext()
+await _db.mainObjects.clear()
+
+export const db = _db

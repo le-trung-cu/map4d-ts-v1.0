@@ -6,6 +6,7 @@ import Mapclient from './features/mapclient/mapclient'
 import indexedMainObject from './core/createIndexMainObject'
 import { GeometryTypes } from '@/core/types'
 import Folders from './features/data-layers/components/Folders'
+import { db } from './database'
 
 function App() {
 
@@ -25,7 +26,7 @@ function App() {
 
   return (
     <div className="App">
-      <Folders/>
+      <Folders />
       <Mapclient />
     </div>
   )

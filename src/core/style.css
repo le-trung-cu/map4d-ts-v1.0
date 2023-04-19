@@ -1,0 +1,14 @@
+.draw-map__marker-cluster {
+  background: rgb(237,0,11);
+  background: radial-gradient(circle, rgba(255,78,80,1) 0%, rgba(255,78,80,1) 41%, rgba(249,212,35,1) 100%);
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #000000;
+  font-weight: bold;
+  font-size: 12px;
+  box-shadow: 0 0 15px 5px red;
+}

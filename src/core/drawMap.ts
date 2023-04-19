@@ -1,9 +1,11 @@
-import type { Map4d, MapEvent, Marker, Polygon, Polyline } from 'typeing-map4d'
+import { Map4d, MapEvent, Marker, Polygon, Polyline, TileOverlay } from 'typeing-map4d'
 import map4dx from '@/core/map4d'
 import { db } from '@/database'
 import mitt, { Emitter } from 'mitt'
 import { delay } from '@/utils'
-import { DrawType, GeometryTypes } from './types'
+import { DrawTypes, GeometryTypes } from './types'
+import Supercluster from 'supercluster'
+import './style.css'
 
 
 type GeoJsonStringType = string
@@ -21,13 +23,14 @@ interface IDrawnObject {
   },
   dataLayers: Record<DataLayerId, {
     type: GeometryTypes,
-    drawnType: DrawType,
+    drawType: DrawTypes,
     pages: {
-      [page: number]: Record<MainObjectId, {
-        markers: Marker | Marker[],
-      }>
+      [page: string]: {
+        markers?: Record<MainObjectId, Marker | Marker[]>,
+        tileOverlay?: TileOverlay,
+      }
     },
-  }>
+  }>,
 }
 
 interface IVitualDrawObject {
@@ -42,73 +45,33 @@ interface IVitualDrawObject {
   },
   dataLayers: Record<string, {
     type: GeometryTypes,
-    drawType: DrawType,
+    drawType: DrawTypes,
     pages: {
-      [page: number]: GeoJsonStringType | boolean,
-    }
-  }>
-}
-
-const drawn: IDrawnObject = {
-  selectedObjects: { selectedMainObjects: new Map<MainObjectId, any>() },
-  dataLayers: {
-    'layer_1': {
-      type: 'Polygon',
-      drawnType: 'DataLayer',
-      pages: {
-        [1]: {}
-      }
+      [page: string]: GeoJsonStringType | boolean,
     },
-    'layer_2': {
-      type: 'Point',
-      drawnType: 'Marker',
-      pages: {
-        [1]: {
-          'object_1': {
-            markers: new map4dx.Marker({ position: [1, 1] }),
-          }
-        },
-      }
-    }
-  }
-}
-
-const vitualDrawn: IVitualDrawObject = {
-  isDrawing: false,
-  selectedObjects: { selectedMainObjects: new Map<MainObjectId, any>() },
-  // selectedObjects: 
-  dataLayers: {
-    'layer_1': {
-      type: 'Polygon',
-      drawType: 'DataLayer',
-      pages: {
-        [0]: true,
-      }
-    }
-  }
+  }>,
 }
 
 class DrawMap {
+  refreshCluster!: boolean
   drawnObjects!: IDrawnObject
   objects!: IVitualDrawObject
   mapview: Map4d | null = null
   boundedDrawTimmer?: ReturnType<typeof setTimeout>
+  boundedMarkerCluseterRefreshTimmer?: ReturnType<typeof setTimeout>
+  mapSupercluster!: Map<DataLayerId, Supercluster>
+  lockDraw!: boolean
+
   emmiter!: Emitter<{
     'drawn-data-layer': Record<string, number>,
   }>
 
   constructor() {
-    // this.drawnObjects = {
-    //   selectedObjects: { selectedMainObjects: new Map<MainObjectId, any>() },
-    //   dataLayers: {},
-    // }
-    // this.objects = {
-    //   selectedObjects: { selectedMainObjects: new Map<MainObjectId, any>() },
-    //   dataLayers: {},
-    // }
-
     this.mapview = null
     this.emmiter = mitt()
+    this.refreshCluster = false
+    this.mapSupercluster = new Map()
+    this.lockDraw = false
   }
 
   setContext(vitualDrawn: IVitualDrawObject, drawnObjects: IDrawnObject) {
@@ -125,28 +88,91 @@ class DrawMap {
         this.setSelectedObject(dataLayerId, id)
       }
     })
+    mapview.addListener(map4dx.MapEvent.click, (e: { marker: Marker }) => {
+      const userData = e.marker.getUserData()
+      if (userData?.cluster_id) {
+        const supercluster = this.mapSupercluster.get(userData.dataLayerId)!
+        const zoom = supercluster.getClusterExpansionZoom(userData.cluster_id)
+        this.mapview?.moveCamera({ target: e.marker.getPosition(), zoom })
+      }
+    }, { marker: true })
+    mapview.addListener(map4dx.MapEvent.boundsChanged, (e: any) => {
+      if (this.boundedMarkerCluseterRefreshTimmer) {
+        clearTimeout(this.boundedMarkerCluseterRefreshTimmer)
+        this.boundedMarkerCluseterRefreshTimmer = undefined
+      }
+      this.boundedMarkerCluseterRefreshTimmer = setTimeout(() => {
+        this.refreshCluster = true
+        this.boundedMarkerCluseterRefreshTimmer = undefined
+      }, 100)
+    })
     //this.draw()
   }
 
-  createDataLayer(dataLayerId: string, type: GeometryTypes) {
+  #deleteDrawnObjectDataLayer(dataLayerId: string) {
+    if (this.drawnObjects.dataLayers[dataLayerId].drawType === 'DataLayer') {
+      const drawnIds = Object.keys(this.drawnObjects.dataLayers)
+      this.mapview?.data.clear()
+      for (const drawId of drawnIds) {
+        if (this.drawnObjects.dataLayers[drawId].drawType === 'DataLayer') {
+          delete this.drawnObjects.dataLayers[drawId]
+        }
+      }
+    } else if (this.drawnObjects.dataLayers[dataLayerId].drawType === 'Marker') {
+      for (const page in this.drawnObjects.dataLayers[dataLayerId].pages) {
+        const mainObjects = this.drawnObjects.dataLayers[dataLayerId].pages[page]
+        for (const mainObjectId in mainObjects.markers) {
+          const markers = mainObjects.markers[mainObjectId]
+          if (!Array.isArray(markers)) {
+            markers.setMap(null)
+          } else {
+            markers.forEach(t => t.setMap(null))
+          }
+        }
+      }
+    } else if (this.drawnObjects.dataLayers[dataLayerId].drawType === 'MarkerCluster') {
+      if (this.drawnObjects.dataLayers[dataLayerId]?.pages[1])
+        for (const key in this.drawnObjects.dataLayers[dataLayerId].pages[1].markers) {
+          const markers = this.drawnObjects.dataLayers[dataLayerId].pages[1].markers![key]
+          if (!Array.isArray(markers)) {
+            markers.setMap(null)
+          }
+          else {
+            markers.forEach(t => t.setMap(null))
+          }
+        }
+    }
+    delete this.drawnObjects.dataLayers[dataLayerId]
+  }
+
+  changeDrawType(dataLayerId: string, drawType: DrawTypes) {
+    this.objects.dataLayers[dataLayerId].drawType = drawType
+  }
+
+  createDataLayer(dataLayerId: string, type: GeometryTypes, drawType: DrawTypes) {
     this.objects.dataLayers[dataLayerId] = {
       type,
-      drawType: type === 'Point' ? 'Marker' : 'DataLayer',
+      drawType,
       pages: {},
     }
   }
 
-  pushMainObjects(dataLayerId: string, page: number, objects: { geoJson?: any, type: GeometryTypes }) {
+  pushMainObjects(dataLayerId: string, page: number, objects: { geoJson?: any, type: GeometryTypes, drawType: DrawTypes }) {
     if (this.objects.dataLayers[dataLayerId] !== undefined) {
       if (objects.type === 'Polygon' || objects.type === 'LineString')
         this.objects.dataLayers[dataLayerId].pages = { ...this.objects.dataLayers[dataLayerId].pages, [page]: JSON.stringify(objects.geoJson) }
-      if (objects.type === 'Point') {
+      if (objects.drawType === 'Marker') {
         this.objects.dataLayers[dataLayerId].pages = {
           ...this.objects.dataLayers[dataLayerId].pages,
           [page]: true,
         }
       }
-      //this.draw()
+      if (objects.drawType === 'MarkerCluster') {
+        this.objects.dataLayers[dataLayerId].pages = {
+          ...this.objects.dataLayers[dataLayerId].pages,
+          [page]: true,
+        }
+      }
     }
   }
 
@@ -197,19 +223,33 @@ class DrawMap {
     //this.draw()
   }
 
+  toggleDrawType() {
+    this.objects.dataLayers['2'].drawType = this.objects.dataLayers['2'].drawType === 'Marker' ? 'MarkerCluster' : 'Marker'
+  }
+
   draw() {
     this.#drawThrottle()
   }
 
   async #drawThrottle() {
-    // this.#draw()
-    await Promise.all([ delay(300), this.#draw()])
+    await Promise.all([delay(300), this.#draw()])
     requestAnimationFrame(this.#drawThrottle.bind(this))
   }
 
   async #draw() {
     let hasChange = false
-    console.log('observerable')
+    if (!this.mapview)
+      return
+
+    // xóa marker cluster
+    if (this.refreshCluster) {
+      for (const id in this.drawnObjects.dataLayers) {
+        if (this.drawnObjects.dataLayers[id].drawType === 'MarkerCluster') {
+          this.#deleteDrawnObjectDataLayer(id)
+        }
+      }
+      this.refreshCluster = false
+    }
 
     // delete unselected object
     for (const key of this.drawnObjects.selectedObjects.selectedMainObjects.keys()) {
@@ -229,44 +269,25 @@ class DrawMap {
       hasChange = true
       console.log('xóa các datalayer khỏi map')
       for (const id of unChecedSelectedIds) {
-        // nếu data layer được vẽ bằng data layer, thì cần xóa tất cả data layer đã vẽ, sau đó vẽ lại.
-        if (this.drawnObjects.dataLayers[id].drawnType === 'DataLayer') {
-          this.mapview?.data.clear()
-          for (const drawId of drawnIds) {
-            if (this.drawnObjects.dataLayers[drawId].drawnType === 'DataLayer') {
-              delete this.drawnObjects.dataLayers[drawId]
-            }
-          }
-          continue
-        }
-        if (this.drawnObjects.dataLayers[id].drawnType === 'Marker') {
-          for (const page in this.drawnObjects.dataLayers[id].pages) {
-            const mainObjects = this.drawnObjects.dataLayers[id].pages[page]
-            for (const mainObjectId in mainObjects) {
-              const markers = mainObjects[mainObjectId].markers
-              if (!Array.isArray(markers)) {
-                markers.setMap(null)
-              }
-              else {
-                markers.forEach(t => t.setMap(null))
-              }
-            }
-            delete this.drawnObjects.dataLayers[id].pages[page]
-          }
-          delete this.drawnObjects.dataLayers[id]
-        }
-        // delete this.drawnObjects.dataLayers[id]
+        this.#deleteDrawnObjectDataLayer(id)
+      }
+    }
+
+    // xóa các datalayer khỏi map, với các datalayer được thay đổi kiểu vẽ
+    // ví dụ thay đổi kiểu vẽ từ Marker thành MarkerCluster
+    for (const dataLayerId in this.drawnObjects.dataLayers) {
+      if (this.drawnObjects.dataLayers[dataLayerId].drawType !== this.objects.dataLayers[dataLayerId].drawType) {
+        this.#deleteDrawnObjectDataLayer(dataLayerId)
       }
     }
 
     /** xác định việc vẽ thêm sẽ hơi khác vì mỗi layer sẽ vẽ nhiều page */
     // các page trong mainObjects
-    const selectedPages = new Map<string, { dataLayerId: string, page: number, type: GeometryTypes }>()
+    const selectedPages = new Map<string, { dataLayerId: string, page: string, type: GeometryTypes, drawType: DrawTypes }>()
     for (const dataLayerId in this.objects.dataLayers) {
-      const { pages, type } = this.objects.dataLayers[dataLayerId]
+      const { pages, type, drawType } = this.objects.dataLayers[dataLayerId]
       for (const page in pages) {
-        const pageNum = page as unknown as number
-        selectedPages.set(`${dataLayerId}:${page}`, { dataLayerId, page: pageNum, type })
+        selectedPages.set(`${dataLayerId}:${page}`, { dataLayerId, page, type, drawType })
       }
     }
 
@@ -282,32 +303,108 @@ class DrawMap {
     if (newPageKeys.length > 0) {
       hasChange = true
       for (const key of newPageKeys) {
-        const { dataLayerId, page, type } = selectedPages.get(key)!
+        const { dataLayerId, page, type, drawType } = selectedPages.get(key)!
         if (this.drawnObjects.dataLayers[dataLayerId] === undefined) {
           this.drawnObjects.dataLayers[dataLayerId] = {
             type,
-            drawnType: type === 'Point' ? 'Marker' : 'DataLayer',
-            pages: { [page]: {} }
+            drawType,
+            pages: { [page]: { markers: {}, tileOverlay: undefined } }
           }
         }
         console.log('vẽ thêm page: ', key)
-        if (type === 'Point') {
-          this.drawnObjects.dataLayers[dataLayerId].pages[page] = {}
-          await db.mainObjects.where({ dataLayerId }).each(mainObject => {
+        if (drawType === 'Marker') {
+          this.drawnObjects.dataLayers[dataLayerId].pages[page] = { markers: {} }
+          await db.mainObjects.where({ dataLayerId, page: parseInt(page + '') }).each(mainObject => {
             const t = mainObject.timelines[0]
             const marker = new map4dx.Marker({
               position: (t.geometry.coordinates as unknown) as [number, number]
             })
             marker.setMap(this.mapview)
-            this.drawnObjects.dataLayers[dataLayerId].pages[page][mainObject.id] = { markers: marker }
+            this.drawnObjects.dataLayers[dataLayerId].pages[page].markers![mainObject.id] = marker
           })
         }
-        if (type === 'Polygon') {
+        if (drawType === 'MarkerCluster') {
+          this.drawnObjects.dataLayers[dataLayerId].pages[page] = { markers: {} }
+          if (page === '1') {
+            if (!this.mapSupercluster.has(dataLayerId)) {
+              const index = new Supercluster({
+                radius: 80,
+                maxZoom: 16,
+                minZoom: 0,
+
+                map: (props) => ({ sum: props.myValue }),
+                reduce: (accumulated, props) => { accumulated.sum += props.sum },
+              })
+              this.mapSupercluster.set(dataLayerId, index)
+              const points: any = await db
+                .mainObjects
+                .where({ dataLayerId })
+                .toArray(result => {
+                  return result.map(t => ({
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                      'type': 'Point',
+                      'coordinates': t.timelines[0].geometry.coordinates,
+                    }
+                  }))
+                })
+              index.load(points)
+              this.mapSupercluster.set(dataLayerId, index)
+            }
+
+            if (this.refreshCluster) {
+              return
+            }
+            const index = this.mapSupercluster.get(dataLayerId)!
+            const bounds = this.mapview.getBounds()
+            const { lng: eastLng, lat: northLat } = bounds.getNortheast()
+            const { lng: westLng, lat: southLat } = bounds.getSouthwest()
+            const zoom = this.mapview?.getCamera().getZoom()
+            const ps = index.getClusters([westLng, southLat, eastLng, northLat], zoom)
+            ps.forEach((t, index) => {
+              const marker = !t.properties.cluster
+                ? new map4dx.Marker({
+                  position: (t.geometry.coordinates as unknown) as [number, number],
+                })
+                : new map4dx.Marker({
+                  position: (t.geometry.coordinates as unknown) as [number, number],
+                  iconView: `<div class="draw-map__marker-cluster">${t.properties.point_count}</div>`
+                })
+              if (t.properties.cluster) {
+                marker.setUserData({
+                  cluster_id: t.properties.cluster_id,
+                  dataLayerId,
+                })
+              }
+
+              if (this.drawnObjects.dataLayers[dataLayerId] !== undefined) {
+                marker.setMap(this.mapview)
+                this.drawnObjects.dataLayers[dataLayerId].pages[1].markers![index] = marker
+              }
+              else {
+                return
+              }
+            })
+          }
+        }
+        if (drawType === 'DataLayer') {
           const geoJsonStr = this.objects.dataLayers[dataLayerId].pages[page] as GeoJsonStringType
           this.mapview?.data.addGeoJson(geoJsonStr)
           this.drawnObjects.dataLayers[dataLayerId].pages[page] = {}
         }
+        if (drawType === 'TitleOverlay') {
+          const overlay = new map4dx.TileOverlay({
+            getUrl: function (x: number, y: number, zoom: number, is3dMode: boolean) {
+              return `/api/data-layers/${dataLayerId}/tile/${zoom}/${x}/${y}.png`
+            },
+            visible: true,
+            zIndex: 1,
+          })
+          overlay.setMap(this.mapview)
+        }
       }
+
     }
 
     /** End xác định việc vẽ thêm sẽ hơi khác vì mỗi layer sẽ vẽ nhiều page */
@@ -329,7 +426,7 @@ class DrawMap {
       }
     }
 
-    hasChange && this.trackingDrawDataLayerPage()
+    // hasChange && this.trackingDrawDataLayerPage()
   }
 
   trackingDrawDataLayerPage() {

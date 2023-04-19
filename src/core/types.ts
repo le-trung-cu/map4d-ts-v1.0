@@ -1,2 +1,2 @@
 export type GeometryTypes = 'Polygon' | 'Point' | 'LineString'
-export type DrawType = 'DataLayer' | 'Marker' | 'Polygon' | 'LineString'
+export type DrawTypes = 'DataLayer' | 'TitleOverlay' | 'Marker' | 'MarkerCluster' | 'Polygon' | 'LineString'

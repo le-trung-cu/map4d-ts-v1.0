@@ -15,6 +15,7 @@ export default function Mapclient() {
       map.setWaterEffect(true)
       // map.setTimeEffect('live')
       map.moveCamera({ target: [108.22278807479455, 16.07148579810236], zoom: 17 })
+      map.setZoomGesturesEnabled(true)
       drawMap.setMap(map)
       
       drawMap.draw()

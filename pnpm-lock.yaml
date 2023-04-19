@@ -3,10 +3,12 @@ lockfileVersion: 5.4
 specifiers:
   '@reduxjs/toolkit': ^1.9.3
   '@turf/turf': ^6.5.0
+  '@types/geojson-vt': ^3.2.0
   '@types/kdbush': ^3.0.2
   '@types/rbush': ^3.0.0
   '@types/react': ^18.0.28
   '@types/react-dom': ^18.0.11
+  '@types/supercluster': ^7.1.0
   '@typescript-eslint/eslint-plugin': ^5.57.1
   '@typescript-eslint/parser': ^5.57.1
   '@vitejs/plugin-react': ^3.1.0
@@ -14,6 +16,7 @@ specifiers:
   dexie: ^3.2.3
   eslint: ^8.37.0
   eslint-plugin-react: ^7.32.2
+  geojson-vt: ^3.2.1
   kdbush: ^3.0.0
   mitt: ^3.0.0
   msw: ^1.2.1
@@ -23,14 +26,17 @@ specifiers:
   react: ^18.2.0
   react-dom: ^18.2.0
   react-redux: ^8.0.5
+  supercluster: ^7.1.5
   tailwindcss: ^3.3.1
   typescript: ^4.9.3
   vite: ^4.2.0
+  vite-plugin-dynamic-import: ^1.2.7
 
 dependencies:
   '@reduxjs/toolkit': 1.9.3_k4ae6lp43ej6mezo3ztvx6pykq
   '@turf/turf': 6.5.0
   dexie: 3.2.3
+  geojson-vt: 3.2.1
   kdbush: 3.0.0
   mitt: 3.0.0
   quadtree-lib: 1.0.9
@@ -38,12 +44,15 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-redux: 8.0.5_ddal5w4bzhvnvvplv3twufcima
+  supercluster: 7.1.5
 
 devDependencies:
+  '@types/geojson-vt': 3.2.0
   '@types/kdbush': 3.0.2
   '@types/rbush': 3.0.0
   '@types/react': 18.0.33
   '@types/react-dom': 18.0.11
+  '@types/supercluster': 7.1.0
   '@typescript-eslint/eslint-plugin': 5.57.1_iify4w3mi7rbbu6mxzspkpx4b4
   '@typescript-eslint/parser': 5.57.1_ip5up2nocltd47wbnuyybe5dxu
   '@vitejs/plugin-react': 3.1.0_vite@4.2.1
@@ -55,6 +64,7 @@ devDependencies:
   tailwindcss: 3.3.1_postcss@8.4.21
   typescript: 4.9.5
   vite: 4.2.1
+  vite-plugin-dynamic-import: 1.2.7
 
 packages:
 
@@ -1694,9 +1704,14 @@ packages:
       '@types/ms': 0.7.31
     dev: true
 
+  /@types/geojson-vt/3.2.0:
+    resolution: {integrity: sha512-w3Suw6tXNOPZZROz7+cEkYF+ufVZKKfhKByxRFQwwm5BMyC1pflI9nEsiFQ1eQ27IiO1TEkxjvvcbyKW5YJJKA==}
+    dependencies:
+      '@types/geojson': 7946.0.8
+    dev: true
+
   /@types/geojson/7946.0.8:
     resolution: {integrity: sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==}
-    dev: false
 
   /@types/hoist-non-react-statics/3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
@@ -1755,6 +1770,12 @@ packages:
     resolution: {integrity: sha512-fBZgytwhYAUkj/jC/FAV4RQ5EerRup1YQsXQCh8rZfiHkc4UahC192oH0smGwsXol3cL3A5oETuAHeQHmhXM4w==}
     dependencies:
       '@types/node': 18.15.11
+    dev: true
+
+  /@types/supercluster/7.1.0:
+    resolution: {integrity: sha512-6JapQ2GmEkH66r23BK49I+u6zczVDGTtiJEVvKDYZVSm/vepWaJuTq6BXzJ6I4agG5s8vA1KM7m/gXWDg03O4Q==}
+    dependencies:
+      '@types/geojson': 7946.0.8
     dev: true
 
   /@types/use-sync-external-store/0.0.3:
@@ -2755,6 +2776,10 @@ packages:
       '@turf/meta': 6.5.0
       '@types/geojson': 7946.0.8
       rbush: 3.0.1
+    dev: false
+
+  /geojson-vt/3.2.1:
+    resolution: {integrity: sha512-EvGQQi/zPrDA6zr6BnJD/YhwAkBP8nnJ9emh3EnHQKVMfg/MRVtPbMYdgVy/IaEmn4UfagD2a6fafPDL5hbtwg==}
     dev: false
 
   /get-caller-file/2.0.5:
@@ -4064,6 +4089,12 @@ packages:
       ts-interface-checker: 0.1.13
     dev: true
 
+  /supercluster/7.1.5:
+    resolution: {integrity: sha512-EulshI3pGUM66o6ZdH3ReiFcvHpM3vAigyK+vcxdjpJyEbIIrtbmBdY23mGgnI24uXiGFvrGq9Gkum/8U7vJWg==}
+    dependencies:
+      kdbush: 3.0.0
+    dev: false
+
   /supports-color/5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
     engines: {node: '>=4'}
@@ -4288,6 +4319,12 @@ packages:
       is-generator-function: 1.0.10
       is-typed-array: 1.1.10
       which-typed-array: 1.1.9
+    dev: true
+
+  /vite-plugin-dynamic-import/1.2.7:
+    resolution: {integrity: sha512-n1fjBaYF8ByqORv7hpEaZQiQie8sNiWGU61DpYs+fgToGmzGIgThUI8BCnW3RICVK4gJC2sDNn7NK1RzTvRyEA==}
+    dependencies:
+      fast-glob: 3.2.12
     dev: true
 
   /vite/4.2.1:

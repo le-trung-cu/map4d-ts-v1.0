@@ -3,6 +3,7 @@ import * as turf from '@turf/turf'
 import RBush from 'rbush'
 import KDBush from 'kdbush'
 import Quadtree from 'quadtree-lib'
+import Supercluster from 'supercluster'
 
 import type { Polygon } from 'typeing-map4d'
 import { GeometryTypes } from './types'
@@ -44,37 +45,37 @@ class IndexedMainObject {
   }
 
   async #createIndexDataLayerHasTypePoint(dataLayerId: string) {
-    // const points = await db.mainObjects
-    //   .where({dataLayerId})
-    //   .toArray(result => {
-    //     return result.map(t => t.timelines[0].geometry.coordinates)
-    //   })
-    // const indexed = new KDBush(points)
-
-    // this.mapDataLayerIndexed.set(dataLayerId, indexed)
-
-    const quadtree = new Quadtree({
-      x: 8.324644583492258 * Math.pow(10, 15),
-      y: 103.74667429240236 * Math.pow(10, 15),
-      width: Math.ceil((23.573789600179467 - 8.324644583492258) * Math.pow(10, 15)),
-      height: Math.ceil((108.29012543632348 - 103.74667429240236) * Math.pow(10, 15)),
-    })
-
     const points = await db.mainObjects
-      .where({ dataLayerId })
+      .where({dataLayerId})
       .toArray(result => {
-        return result.map(t => ({
-          x: t.timelines[0].geometry.coordinates[1] * Math.pow(10, 15),
-          y: t.timelines[0].geometry.coordinates[0] * Math.pow(10, 15),
-          toString: function() {
-            return `[${t.timelines[0].geometry.coordinates.join(',')}]`
-          }
-        }))
+        return result.map(t => t.timelines[0].geometry.coordinates)
       })
+    const indexed = new KDBush(points)
 
-    quadtree.pushAll(points)
-    console.log(quadtree);
-    (window as any).trc_quadtree = quadtree
+    this.mapDataLayerIndexed.set(dataLayerId, indexed)
+
+    // const quadtree = new Quadtree({
+    //   x: 8.324644583492258 * Math.pow(10, 15),
+    //   y: 103.74667429240236 * Math.pow(10, 15),
+    //   width: Math.ceil((23.573789600179467 - 8.324644583492258) * Math.pow(10, 15)),
+    //   height: Math.ceil((108.29012543632348 - 103.74667429240236) * Math.pow(10, 15)),
+    // })
+
+    // const points = await db.mainObjects
+    //   .where({ dataLayerId })
+    //   .toArray(result => {
+    //     return result.map(t => ({
+    //       x: t.timelines[0].geometry.coordinates[1] * Math.pow(10, 15),
+    //       y: t.timelines[0].geometry.coordinates[0] * Math.pow(10, 15),
+    //       toString: function() {
+    //         return `[${t.timelines[0].geometry.coordinates.join(',')}]`
+    //       }
+    //     }))
+    //   })
+
+    // quadtree.pushAll(points)
+    // console.log(quadtree);
+    // (window as any).trc_quadtree = quadtree
   }
 
   async search(dataLayerId: string, type: 'Point' | 'Polygon' | 'LineString', polygon: Polygon) {

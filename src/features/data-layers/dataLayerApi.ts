@@ -3,7 +3,7 @@ import TrasnformMainObjectWorker from './workers/transformMainObjectWorker?worke
 import { IDataLayer, db } from '@/database'
 import Dexie from 'dexie'
 import drawMap from '@/core/drawMap'
-import { GeometryTypes } from '@/core/types'
+import { DrawTypes, GeometryTypes } from '@/core/types'
 
 
 export const dataLayerApi = emptySplitApi.injectEndpoints({
@@ -30,7 +30,7 @@ export const dataLayerApi = emptySplitApi.injectEndpoints({
         return response.count
       }
     }),
-    getMainObjects: build.query<{ dataLayerId: string, page: number, type: GeometryTypes, geoJson?: any }[], string>({
+    getMainObjects: build.query<{ dataLayerId: string, page: number, type: GeometryTypes, drawType: DrawTypes, geoJson?: any }[], string>({
       keepUnusedDataFor: 5,
       query: id => id ? `/api/data-layers/${id}/main-objects/count` : '',
       transformResponse: async (response: { count: number }, meta, id) => {
@@ -53,12 +53,12 @@ export const dataLayerApi = emptySplitApi.injectEndpoints({
             }, {})
           })
 
-        const numPages = Math.ceil(response.count / 30)
+        const numPages = id === '2'? 10 : Math.ceil(response.count / 10)
         const requests: any = []
         for (let page = 1; page <= numPages; page++) {
-          const task = fetch(`/api/data-layers/${id}/main-objects?page=${page}&page-size=30`)
+          const task = await fetch(`/api/data-layers/${id}/main-objects?page=${page}&page-size=500`)
             .then(value => value.json())
-            .then(({ type, mainObjects }) => {
+            .then(({ type, drawType, mainObjects }: {type: GeometryTypes, drawType: DrawTypes, mainObjects: any}) => {
               for (const mainObject of mainObjects) {
                 mainObject.page = page
                 mainObject.dataLayerId = id
@@ -96,7 +96,7 @@ export const dataLayerApi = emptySplitApi.injectEndpoints({
                   'features': features,
                 }
 
-                drawMap.pushMainObjects(id, page, { type, geoJson })
+                drawMap.pushMainObjects(id, page, { type, geoJson, drawType })
                 db.mainObjects.bulkAdd(mainObjects)
 
                 return {
@@ -108,12 +108,12 @@ export const dataLayerApi = emptySplitApi.injectEndpoints({
               }
 
               if (type === 'Point') {
-                drawMap.pushMainObjects(id, page, { type })
+                drawType === 'Marker' && drawMap.pushMainObjects(id, page, { type, drawType })
                 db.mainObjects.bulkAdd(mainObjects)
-
                 return {
                   dataLayerId: id,
                   type,
+                  drawType,
                   page,
                 }
               }
@@ -122,7 +122,7 @@ export const dataLayerApi = emptySplitApi.injectEndpoints({
           requests.push(task)
         }
 
-        return Promise.all(requests)
+        return requests
       }
     })
   })
